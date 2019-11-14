@@ -30,6 +30,7 @@ func (c *pingCmd) handle(s disgord.Session, mc *disgord.MessageCreate) {
 	msg, err := s.SendMsg(mc.Message.ChannelID, "Pong!")
 	if err != nil {
 		c.bot.Log.Error(mc.Ctx, "failed to send pong message")
+		return
 	}
 
 	took := time.Since(start)

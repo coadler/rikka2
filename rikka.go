@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/andersfylling/disgord"
+	"github.com/apple/foundationdb/bindings/go/src/fdb"
 	"go.coder.com/slog"
 	"go.coder.com/slog/sloggers/sloghuman"
 )
@@ -13,10 +14,11 @@ type Command interface {
 	Register(func(event string, inputs ...interface{}))
 }
 
-func New(token string) *Rikka {
+func New(fdb fdb.Database, token string) *Rikka {
 	return &Rikka{
 		Log:    sloghuman.Make(os.Stdout),
 		ctx:    context.Background(),
+		fdb:    fdb,
 		token:  token,
 		Prefix: "b.",
 		Client: disgord.New(disgord.Config{
@@ -30,6 +32,7 @@ func New(token string) *Rikka {
 type Rikka struct {
 	Log slog.Logger
 	ctx context.Context
+	fdb fdb.Database
 
 	token  string
 	Prefix string
@@ -51,4 +54,20 @@ func (r *Rikka) Open() {
 	r.Client.On("READY", func(s disgord.Session, h *disgord.Ready) {
 		r.Log.Info(h.Ctx, "ready")
 	})
+}
+
+func (r *Rikka) Transact(fn func(t fdb.Transaction) error) error {
+	_, err := r.fdb.Transact(func(t fdb.Transaction) (interface{}, error) {
+		return nil, fn(t)
+	})
+
+	return err
+}
+
+func (r *Rikka) ReadTransact(fn func(t fdb.ReadTransaction) error) error {
+	_, err := r.fdb.ReadTransact(func(t fdb.ReadTransaction) (interface{}, error) {
+		return nil, fn(t)
+	})
+
+	return err
 }
