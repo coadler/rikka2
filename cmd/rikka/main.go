@@ -4,17 +4,19 @@ import (
 	"github.com/apple/foundationdb/bindings/go/src/fdb"
 	rikka "github.com/coadler/rikka2"
 	"github.com/coadler/rikka2/commands"
+	"github.com/coadler/rikka2/commands/logs"
 )
 
 func main() {
-	r := rikka.New(Token)
-
 	fdb.MustAPIVersion(620)
 	fdb := fdb.MustOpenDefault()
+
+	r := rikka.New(fdb, Token)
+
 	r.RegisterCommands(
 		commands.NewPingCommand(r),
 		commands.NewStatsCmd(r),
-		commands.NewMessageTrackCmd(r, fdb),
+		logs.NewLogCmd(r, fdb),
 	)
 	r.Open()
 }

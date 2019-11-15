@@ -10,4 +10,5 @@ require (
 	github.com/dustin/go-humanize v1.0.0
 	github.com/json-iterator/go v1.1.8
 	go.coder.com/slog v0.3.0
+	golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7
 )
