@@ -9,6 +9,8 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dustin/go-humanize v1.0.0
 	github.com/json-iterator/go v1.1.8
-	go.coder.com/slog v0.3.0
+	go.coder.com/slog v0.3.1-0.20191101183346-25e1d948339e
 	golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7
 )
+
+replace github.com/andersfylling/disgord => /home/colin/gohack/github.com/andersfylling/disgord

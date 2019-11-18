@@ -141,6 +141,8 @@ github.com/valyala/fasttemplate v1.0.1/go.mod h1:UQGH1tvbgY+Nz5t2n7tXsz52dQxojPU
 go.coder.com/go-tools v0.0.0-20190317003359-0c6a35b74a16/go.mod h1:iKV5yK9t+J5nG9O3uF6KYdPEz3dyfMyB15MN1rbQ8Qw=
 go.coder.com/slog v0.3.0 h1:t8oxlsA5fT9ADdFC6/mHAssVCnEjdUSOkdAzil67Ysg=
 go.coder.com/slog v0.3.0/go.mod h1:O8EYhcLns+TibI8q1brbqqeb2Mm/TDKR21buMWCHuwU=
+go.coder.com/slog v0.3.1-0.20191101183346-25e1d948339e h1:irdEpNpX2LGA3zbIvMHF3V6JuOwIuAuGHRvBZEz8kmc=
+go.coder.com/slog v0.3.1-0.20191101183346-25e1d948339e/go.mod h1:O8EYhcLns+TibI8q1brbqqeb2Mm/TDKR21buMWCHuwU=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
 go.opencensus.io v0.22.1 h1:8dP3SGL7MPB94crU3bEPplMPe83FI4EouesJUeFHv50=

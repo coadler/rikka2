@@ -12,11 +12,13 @@ import (
 	"github.com/apple/foundationdb/bindings/go/src/fdb/directory"
 	"github.com/apple/foundationdb/bindings/go/src/fdb/tuple"
 	"github.com/bwmarrin/discordgo"
-	rikka "github.com/coadler/rikka2"
 	"github.com/davecgh/go-spew/spew"
 	jsoniter "github.com/json-iterator/go"
 	"go.coder.com/slog"
 	"golang.org/x/xerrors"
+
+	rikka "github.com/coadler/rikka2"
+	"github.com/coadler/rikka2/middlewares"
 )
 
 func newMessageLog(r *rikka.Rikka, fdb fdb.Database) logSection {
@@ -40,21 +42,20 @@ type messageLog struct {
 }
 
 func (c *messageLog) Register(fn func(event string, inputs ...interface{})) {
-	fn("MESSAGE_CREATE", c.storeMessage)
-	fn("MESSAGE_UPDATE", c.logUpdate)
-	fn("MESSAGE_DELETE", c.logDelete)
+	fn("MESSAGE_CREATE", middlewares.NoBots, c.storeMessage)
+	fn("MESSAGE_UPDATE", middlewares.NoBots, c.logUpdate)
+	fn("MESSAGE_DELETE", middlewares.NoBots, c.logDelete)
 
 	c.enableUpdateLog(319567980491046913, 644376487331495967)
+	c.enableUpdateLog(309741345264631818, 645532355762585602)
 }
 
 func (C *messageLog) handle(s disgord.Session, h *disgord.MessageCreate) {}
 
 func (c *messageLog) storeMessage(s disgord.Session, mc *disgord.MessageCreate) {
 	if !c.guildIsEnabled(mc.Message.GuildID) {
-		c.Log.Info(mc.Ctx, "message storing not enabled")
 		return
 	}
-	c.Log.Info(mc.Ctx, "message storing enabled")
 
 	mc.Message.EditedTimestamp = disgord.Time{Time: time.Now()}
 	raw, err := jsoniter.Marshal(mc.Message)
@@ -114,6 +115,14 @@ func (c *messageLog) logUpdate(s disgord.Session, mu *disgord.MessageUpdate) {
 
 	spew.Config.DisableMethods = true
 	// spew.Dump(mu.Message)
+	// guild.Members = nil
+	// guild.Channels = nil
+	// guild.VoiceStates = nil
+	// guild.Presences = nil
+	// guild.Emojis = nil
+	// guild.Roles = nil
+	// spew.Dump(guild)
+	// spew.Dump(discordgo.EndpointGuildIcon(guild.ID.String(), guild.Icon))
 
 	_, err = s.SendMsg(logChannel, disgord.CreateMessageParams{
 		Embed: &disgord.Embed{
