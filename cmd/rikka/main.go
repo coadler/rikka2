@@ -17,6 +17,7 @@ func main() {
 		commands.NewPingCommand(r),
 		commands.NewStatsCmd(r),
 		logs.NewLogCmd(r, fdb),
+		commands.NewExecCommand(r),
 	)
 	r.Open()
 }

@@ -50,7 +50,22 @@ func (c *messageLog) Register(fn func(event string, inputs ...interface{})) {
 	c.enableUpdateLog(309741345264631818, 645532355762585602)
 }
 
-func (C *messageLog) handle(s disgord.Session, h *disgord.MessageCreate) {}
+func (c *messageLog) handle(s disgord.Session, mc *disgord.MessageCreate) {
+	if !rikka.MatchesCommand(c.Rikka, "log", mc.Message) {
+		return
+	}
+
+	_, args := rikka.ParseCommand(c.Rikka, mc.Message)
+	if len(args) < 1 && args[0] != "messages" {
+		return
+	}
+
+	switch args.Pop() {
+	case "delete":
+	case "update":
+	default:
+	}
+}
 
 func (c *messageLog) storeMessage(s disgord.Session, mc *disgord.MessageCreate) {
 	if !c.guildIsEnabled(mc.Message.GuildID) {

@@ -6,6 +6,18 @@ import (
 	"github.com/andersfylling/disgord"
 )
 
+type Args []string
+
+func (a *Args) Pop() string {
+	if len(*a) == 0 {
+		return ""
+	}
+
+	arg := (*a)[0]
+	*a = (*a)[1:]
+	return arg
+}
+
 // MatchesCommandString returns true if a message matches a command.
 // Commands will be matched ignoring case with a prefix if they are not private messages.
 func MatchesCommandString(bot *Rikka, commandString string, private bool, message string) bool {
@@ -30,7 +42,7 @@ func MatchesCommand(bot *Rikka, commandString string, message *disgord.Message) 
 }
 
 // ParseCommandString will strip all prefixes from a message string, and return that string, and a space separated tokenized version of that string.
-func ParseCommandString(bot *Rikka, message string) (string, []string) {
+func ParseCommandString(bot *Rikka, message string) (string, Args) {
 	message = strings.TrimSpace(message)
 
 	lowerMessage := strings.ToLower(message)
@@ -45,10 +57,10 @@ func ParseCommandString(bot *Rikka, message string) (string, []string) {
 		rest = rest[1:]
 		return strings.Join(rest, " "), rest
 	}
-	return "", []string{}
+	return "", nil
 }
 
 // ParseCommand parses a message.
-func ParseCommand(bot *Rikka, message *disgord.Message) (string, []string) {
+func ParseCommand(bot *Rikka, message *disgord.Message) (string, Args) {
 	return ParseCommandString(bot, message.Content)
 }
