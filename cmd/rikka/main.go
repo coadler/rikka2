@@ -18,6 +18,7 @@ func main() {
 		commands.NewStatsCmd(r),
 		logs.NewLogCmd(r, fdb),
 		commands.NewExecCommand(r),
+		commands.NewSeenCommand(r, fdb),
 	)
 	r.Open()
 }

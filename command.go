@@ -1,9 +1,12 @@
 package rikka
 
 import (
+	"context"
+	"fmt"
 	"strings"
 
 	"github.com/andersfylling/disgord"
+	"go.coder.com/slog"
 )
 
 type Args []string
@@ -42,7 +45,7 @@ func MatchesCommand(bot *Rikka, commandString string, message *disgord.Message) 
 }
 
 // ParseCommandString will strip all prefixes from a message string, and return that string, and a space separated tokenized version of that string.
-func ParseCommandString(bot *Rikka, message string) (string, Args) {
+func ParseCommandString(bot *Rikka, message string) Args {
 	message = strings.TrimSpace(message)
 
 	lowerMessage := strings.ToLower(message)
@@ -55,12 +58,21 @@ func ParseCommandString(bot *Rikka, message string) (string, Args) {
 
 	if len(rest) > 1 {
 		rest = rest[1:]
-		return strings.Join(rest, " "), rest
+		return rest
 	}
-	return "", nil
+
+	return nil
 }
 
 // ParseCommand parses a message.
-func ParseCommand(bot *Rikka, message *disgord.Message) (string, Args) {
+func ParseCommand(bot *Rikka, message *disgord.Message) Args {
 	return ParseCommandString(bot, message.Content)
+}
+
+func (r *Rikka) HandleError(ctx context.Context, s disgord.Session, msg *disgord.Message, err error, errMsg string) {
+	r.Log.Error(ctx, errMsg, slog.Error(err))
+	_, err = s.SendMsg(msg.ChannelID, fmt.Sprintf("%s: %s", errMsg, err))
+	if err != nil {
+		r.Log.Error(ctx, "failed to send error message to channel", slog.Error(err))
+	}
 }

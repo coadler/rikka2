@@ -3,6 +3,7 @@ package logs
 import (
 	"github.com/andersfylling/disgord"
 	"github.com/apple/foundationdb/bindings/go/src/fdb"
+
 	rikka "github.com/coadler/rikka2"
 )
 
@@ -19,7 +20,7 @@ func NewLogCmd(r *rikka.Rikka, fdb fdb.Database) rikka.Command {
 type logSection interface {
 	rikka.Command
 
-	handle(s disgord.Session, h *disgord.MessageCreate)
+	handleCommand(s disgord.Session, h *disgord.MessageCreate)
 }
 
 type logCmd struct {

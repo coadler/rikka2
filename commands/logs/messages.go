@@ -50,12 +50,12 @@ func (c *messageLog) Register(fn func(event string, inputs ...interface{})) {
 	c.enableUpdateLog(309741345264631818, 645532355762585602)
 }
 
-func (c *messageLog) handle(s disgord.Session, mc *disgord.MessageCreate) {
+func (c *messageLog) handleCommand(s disgord.Session, mc *disgord.MessageCreate) {
 	if !rikka.MatchesCommand(c.Rikka, "log", mc.Message) {
 		return
 	}
 
-	_, args := rikka.ParseCommand(c.Rikka, mc.Message)
+	args := rikka.ParseCommand(c.Rikka, mc.Message)
 	if len(args) < 1 && args[0] != "messages" {
 		return
 	}
