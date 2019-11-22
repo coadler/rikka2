@@ -30,12 +30,14 @@ func (c *statsCmd) handle(s disgord.Session, mc *disgord.MessageCreate) {
 		return
 	}
 
+	ctx := mc.Ctx
+
 	memstats := runtime.MemStats{}
 	runtime.ReadMemStats(&memstats)
 
-	self, err := c.Client.Myself()
+	self, err := c.Client.Myself(ctx)
 	if err != nil {
-		s.SendMsg(mc.Message.ChannelID, "Failed to generate stats: "+err.Error())
+		s.SendMsg(ctx, mc.Message.ChannelID, "Failed to generate stats: "+err.Error())
 		return
 	}
 
@@ -47,9 +49,9 @@ func (c *statsCmd) handle(s disgord.Session, mc *disgord.MessageCreate) {
 
 	guildCount = len(guilds)
 	for _, e := range guilds {
-		g, err := s.GetGuild(e)
+		g, err := s.GetGuild(ctx, e)
 		if err != nil {
-			s.SendMsg(mc.Message.ChannelID, "Failed to generate stats: "+err.Error())
+			s.SendMsg(ctx, mc.Message.ChannelID, "Failed to generate stats: "+err.Error())
 			return
 		}
 
@@ -58,7 +60,7 @@ func (c *statsCmd) handle(s disgord.Session, mc *disgord.MessageCreate) {
 		userCount += len(g.Members)
 	}
 
-	s.SendMsg(mc.Message.ChannelID, disgord.CreateMessageParams{Embed: &disgord.Embed{
+	s.SendMsg(ctx, mc.Message.ChannelID, disgord.CreateMessageParams{Embed: &disgord.Embed{
 		Title: "Rikka v2",
 		Timestamp: disgord.Time{
 			Time: time.Now(),

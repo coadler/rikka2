@@ -18,8 +18,9 @@ func NoBots(i interface{}) interface{} {
 			return nil
 		}
 
+	case *disgord.MessageDelete:
 	default:
-		fmt.Printf("unknown: %T", i)
+		fmt.Printf("unknown: %T\n", i)
 	}
 
 	return i

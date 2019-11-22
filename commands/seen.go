@@ -3,7 +3,6 @@ package commands
 import (
 	"context"
 	"encoding/binary"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -62,11 +61,11 @@ func (c *seenCmd) handleCommand(s disgord.Session, mc *disgord.MessageCreate) {
 
 		userID = disgord.Snowflake(parsed)
 	} else {
-		s.SendMsg(mc.Message.ChannelID, "Please only supply one user")
+		s.SendMsg(ctx, mc.Message.ChannelID, "Please only supply one user")
 		return
 	}
 
-	user, err := s.GetUser(userID)
+	user, err := s.GetUser(ctx, userID)
 	if err != nil {
 		c.HandleError(ctx, s, mc.Message, err, "failed to find user")
 		return
@@ -74,42 +73,33 @@ func (c *seenCmd) handleCommand(s disgord.Session, mc *disgord.MessageCreate) {
 
 	lastChannel, lastGuild, err := c.load(userID, mc.Message.ChannelID, mc.Message.GuildID)
 	if err != nil {
-		c.HandleError(mc.Ctx, s, mc.Message, err, "failed to load last seen times")
+		c.HandleError(ctx, s, mc.Message, err, "failed to load last seen times")
 		return
 	}
 
-	self, err := c.Client.Myself()
-	if err != nil {
-		c.HandleError(mc.Ctx, s, mc.Message, err, "failed to load self")
-		return
+	lastChannelStr := humanize.Time(lastChannel)
+	if lastChannel.IsZero() {
+		lastChannelStr = "Never"
+	}
+	lastGuildStr := humanize.Time(lastGuild)
+	if lastGuild.IsZero() {
+		lastGuildStr = "Never"
 	}
 
 	uav, _ := user.AvatarURL(1024, true)
-	sav, _ := self.AvatarURL(1024, true)
-
-	guild, err := s.GetGuild(mc.Message.GuildID)
-	if err != nil {
-		c.HandleError(mc.Ctx, s, mc.Message, err, "failed to load guild")
-		return
-	}
-
-	fmt.Println("user icon:", uav, user.String())
-	fmt.Println("guild icon:", guild.Icon, guild.String())
-	fmt.Println("rikka icon:", sav, self.String())
-
-	s.SendMsg(mc.Message.ChannelID, disgord.CreateMessageParams{
+	s.SendMsg(ctx, mc.Message.ChannelID, disgord.CreateMessageParams{
 		Embed: &disgord.Embed{
 			Title: "Last seen",
 			Author: &disgord.EmbedAuthor{
-				Name: "Rikka",
-				URL:  sav,
+				Name:    user.Username,
+				IconURL: uav,
 			},
 			Thumbnail: &disgord.EmbedThumbnail{
 				URL: uav,
 			},
 			Fields: []*disgord.EmbedField{
-				{Name: "Channel", Value: humanize.Time(lastChannel)},
-				{Name: "Guild", Value: humanize.Time(lastGuild)},
+				{Name: "Channel", Value: lastChannelStr, Inline: true},
+				{Name: "Guild", Value: lastGuildStr, Inline: true},
 			},
 		},
 	})

@@ -71,7 +71,7 @@ func ParseCommand(bot *Rikka, message *disgord.Message) Args {
 
 func (r *Rikka) HandleError(ctx context.Context, s disgord.Session, msg *disgord.Message, err error, errMsg string) {
 	r.Log.Error(ctx, errMsg, slog.Error(err))
-	_, err = s.SendMsg(msg.ChannelID, fmt.Sprintf("%s: %s", errMsg, err))
+	_, err = s.SendMsg(ctx, msg.ChannelID, fmt.Sprintf("%s: %s", errMsg, err))
 	if err != nil {
 		r.Log.Error(ctx, "failed to send error message to channel", slog.Error(err))
 	}

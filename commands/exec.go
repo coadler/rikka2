@@ -29,9 +29,11 @@ func (c *execCmd) handle(s disgord.Session, mc *disgord.MessageCreate) {
 		return
 	}
 
+	ctx := mc.Ctx
+
 	sp := strings.Split(mc.Message.Content, " ")
 	if len(sp) < 2 {
-		s.SendMsg(mc.Message.ChannelID, "Not enough args")
+		s.SendMsg(ctx, mc.Message.ChannelID, "Not enough args")
 		return
 	}
 
@@ -49,7 +51,7 @@ func (c *execCmd) handle(s disgord.Session, mc *disgord.MessageCreate) {
 		out = out[:maxOutput]
 	}
 
-	_, err := s.SendMsg(mc.Message.ChannelID, &disgord.CreateMessageParams{
+	_, err := s.SendMsg(ctx, mc.Message.ChannelID, &disgord.CreateMessageParams{
 		Embed: &disgord.Embed{
 			Description: "```\n" + string(out) + "\n```",
 			Author: &disgord.EmbedAuthor{

@@ -24,7 +24,7 @@ func New(fdb fdb.Database, token string) *Rikka {
 		Client: disgord.New(disgord.Config{
 			BotToken:           token,
 			LoadMembersQuietly: true,
-			Logger:             disgord.DefaultLogger(true),
+			Logger:             disgord.DefaultLogger(false),
 		}),
 	}
 }
@@ -49,7 +49,7 @@ func (r *Rikka) RegisterCommands(cmds ...Command) {
 }
 
 func (r *Rikka) Open() {
-	defer r.Client.StayConnectedUntilInterrupted()
+	defer r.Client.StayConnectedUntilInterrupted(context.Background())
 
 	r.Client.On("READY", func(s disgord.Session, h *disgord.Ready) {
 		r.Log.Info(h.Ctx, "ready")

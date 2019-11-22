@@ -25,14 +25,15 @@ func (c *pingCmd) handle(s disgord.Session, mc *disgord.MessageCreate) {
 		return
 	}
 
+	ctx := mc.Ctx
 	start := time.Now()
 
-	msg, err := s.SendMsg(mc.Message.ChannelID, "Pong!")
+	msg, err := s.SendMsg(ctx, mc.Message.ChannelID, "Pong!")
 	if err != nil {
 		c.bot.Log.Error(mc.Ctx, "failed to send pong message")
 		return
 	}
 
 	took := time.Since(start)
-	s.SetMsgContent(msg.ChannelID, msg.ID, fmt.Sprintf("Pong! - `%s`", took))
+	s.SetMsgContent(ctx, msg.ChannelID, msg.ID, fmt.Sprintf("Pong! - `%s`", took))
 }
