@@ -9,18 +9,19 @@ import (
 func OwnerOnly(i interface{}) interface{} {
 	switch mc := i.(type) {
 	case *disgord.MessageCreate:
-		if messageIsBot(mc.Message) {
+		if !messageIsOwner(mc.Message) {
 			return nil
 		}
 
 	case *disgord.MessageUpdate:
-		if messageIsBot(mc.Message) {
+		if !messageIsOwner(mc.Message) {
 			return nil
 		}
 
 	default:
 		fmt.Printf("unknown: %T", i)
 	}
+
 	return i
 }
 
