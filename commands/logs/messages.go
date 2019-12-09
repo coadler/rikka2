@@ -13,7 +13,6 @@ import (
 	"github.com/apple/foundationdb/bindings/go/src/fdb/directory"
 	"github.com/apple/foundationdb/bindings/go/src/fdb/tuple"
 	"github.com/bwmarrin/discordgo"
-	"github.com/davecgh/go-spew/spew"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go"
 	"go.coder.com/slog"
@@ -66,33 +65,151 @@ type messageLog struct {
 	attachmentBucket string
 }
 
+func (c *messageLog) Help() []rikka.CommandHelp {
+	const detailed = ``
+
+	return []rikka.CommandHelp{
+		{
+			Name:        "messages",
+			Aliases:     nil,
+			Section:     rikka.HelpSectionModeration,
+			Description: "Log updates or deletes",
+			Usage:       "<update | delete> <enable | disable> [channel id]",
+			Detailed:    detailed,
+			Examples: []string{
+				"`%slog messages enable`                    - Enable message logging to the current channel.",
+				"`%slog messages enable 644376487331495967` - Enable message logging to the provided channel id.",
+				"`%slog messages enable #my-log-channel`    - Enable message logging to the provided channel mention.",
+			},
+		},
+	}
+}
+
 func (c *messageLog) Register(fn func(event string, inputs ...interface{})) {
 	fn("MESSAGE_CREATE", middlewares.NoBots, c.storeMessage)
 	fn("MESSAGE_UPDATE", middlewares.NoBots, c.logUpdate)
 	fn("MESSAGE_DELETE", middlewares.NoBots, c.logDelete)
-
-	c.enableUpdateLog(319567980491046913, 644376487331495967)
-	c.enableUpdateLog(309741345264631818, 645532355762585602)
-	c.enableDeleteLog(319567980491046913, 644376487331495967)
-	c.enableDeleteLog(309741345264631818, 645532355762585602)
-	c.enableUpdateLog(256993540523950101, 647307193024249857)
-	c.enableDeleteLog(256993540523950101, 647307193024249857)
 }
 
-func (c *messageLog) handleCommand(s disgord.Session, mc *disgord.MessageCreate) {
-	if !rikka.MatchesCommand(c.Rikka, "log", mc.Message) {
+func (c *messageLog) handleCommand(s disgord.Session, mc *disgord.MessageCreate, args rikka.Args) {
+	if len(args) < 1 {
+		// send help
 		return
 	}
 
-	args := rikka.ParseCommand(c.Rikka, mc.Message)
-	if len(args) < 1 && args[0] != "messages" {
-		return
-	}
-
-	switch args.Pop() {
+	typ := args.Pop()
+	switch typ {
 	case "delete":
+		c.handleDeleteCommand(s, mc, args)
 	case "update":
+		c.handleUpdateCommand(s, mc, args)
 	default:
+		fmt.Println(typ)
+	}
+}
+
+// <enable | disable> [channel]
+
+func (c *messageLog) handleDeleteCommand(s disgord.Session, mc *disgord.MessageCreate, args rikka.Args) {
+	var (
+		ctx       = mc.Ctx
+		action    = args.Pop()
+		channelID = args.Pop()
+	)
+
+	switch action {
+	case "enable":
+		cid, err := rikka.ExtractID(rikka.ChannelMentionRegex, channelID)
+		if err != nil {
+			c.HandleError(ctx, s, mc.Message, err, "Failed to extract channel id")
+			return
+		}
+
+		// make sure the channel exists
+		ch, err := s.GetChannel(ctx, cid)
+		if err != nil {
+			c.HandleError(ctx, s, mc.Message, err, "Failed to retrieve log channel")
+			return
+		}
+
+		err = c.enableDeleteLog(ch.GuildID, ch.ID)
+		if err != nil {
+			c.HandleError(ctx, s, mc.Message, err, "Failed to enable delete logging")
+			return
+		}
+
+		s.SendMsg(ctx, mc.Message.ChannelID, "Enabling delete logs in "+ch.Mention())
+		return
+
+	case "disable":
+		// err := c.disableDeleteLog(ch.GuildID, ch.ID)
+		// if err != nil {
+		// 	c.HandleError(ctx, s, mc.Message, err, "Failed to enable delete logging")
+		// 	return
+		// }
+
+		s.SendMsg(ctx, mc.Message.ChannelID, "Disabling delete logs")
+		return
+
+	default:
+		s.SendMsg(ctx, mc.Message.ChannelID, "Unknown action. Available actions are: [enable, disable]")
+		return
+	}
+}
+
+// <enable | disable> [channel]
+
+func (c *messageLog) handleUpdateCommand(s disgord.Session, mc *disgord.MessageCreate, args rikka.Args) {
+	var (
+		ctx       = mc.Ctx
+		action    = args.Pop()
+		channelID = args.Pop()
+	)
+
+	switch action {
+	case "enable":
+		cid, err := rikka.ExtractID(rikka.ChannelMentionRegex, channelID)
+		if err != nil {
+			c.HandleError(ctx, s, mc.Message, err, "Failed to extract channel id")
+			return
+		}
+
+		// make sure the channel exists
+		ch, err := s.GetChannel(ctx, cid)
+		if err != nil {
+			c.HandleError(ctx, s, mc.Message, err, "Failed to retrieve log channel")
+			return
+		}
+
+		err = c.enableUpdateLog(ch.GuildID, ch.ID)
+		if err != nil {
+			c.HandleError(ctx, s, mc.Message, err, "Failed to enable update logging")
+			return
+		}
+
+		s.SendMsg(ctx, mc.Message.ChannelID, "Enabled update logs in "+ch.Mention())
+		return
+
+	case "disable":
+		enabled, ch := c.updateLogIsEnabled(mc.Message.GuildID)
+		if !enabled {
+			s.SendMsg(ctx, mc.Message.ChannelID, "Update logs are not enabled")
+			return
+		}
+		_ = ch
+
+		// err := c.disableUpdateLog(mc.Message.GuildID, ch)
+		// if err != nil {
+		// 	c.HandleError(ctx, s, mc.Message, err, "Failed to enable delete logging")
+		// 	return
+		// }
+
+		s.SendMsg(ctx, mc.Message.ChannelID, "Disabled update logging")
+		return
+
+	default:
+		s.SendMsg(ctx, mc.Message.ChannelID, "Unknown action. Available actions are: [enable, disable]")
+		return
 	}
 }
 
@@ -109,6 +226,7 @@ func (c *messageLog) storeMessage(s disgord.Session, mc *disgord.MessageCreate) 
 			c.Log.Error(ctx, "failed to get message attachment", slog.Error(err))
 			continue
 		}
+		defer resp.Body.Close()
 
 		_, err = c.minio.PutObject(
 			c.attachmentBucket,
@@ -142,7 +260,6 @@ func (c *messageLog) storeMessage(s disgord.Session, mc *disgord.MessageCreate) 
 func (c *messageLog) logDelete(s disgord.Session, md *disgord.MessageDelete) {
 	enabled, logChannel := c.deleteLogIsEnabled(md.GuildID)
 	if !enabled {
-		c.Log.Info(md.Ctx, "message delete not enabled")
 		return
 	}
 
@@ -254,7 +371,6 @@ func (c *messageLog) logUpdate(s disgord.Session, mu *disgord.MessageUpdate) {
 
 	enabled, logChannel := c.updateLogIsEnabled(mu.Message.GuildID)
 	if !enabled {
-		c.Log.Info(ctx, "message log not enabled")
 		return
 	}
 
@@ -275,17 +391,6 @@ func (c *messageLog) logUpdate(s disgord.Session, mu *disgord.MessageUpdate) {
 		c.Log.Error(ctx, "failed to log message update", slog.Error(err), slog.F("message_id", mu.Message.ID))
 		return
 	}
-
-	spew.Config.DisableMethods = true
-	// spew.Dump(mu.Message)
-	// guild.Members = nil
-	// guild.Channels = nil
-	// guild.VoiceStates = nil
-	// guild.Presences = nil
-	// guild.Emojis = nil
-	// guild.Roles = nil
-	// spew.Dump(guild)
-	// spew.Dump(discordgo.EndpointGuildIcon(guild.ID.String(), guild.Icon))
 
 	uav, _ := mu.Message.Author.AvatarURL(1024, true)
 	_, err = s.SendMsg(ctx, logChannel, disgord.CreateMessageParams{

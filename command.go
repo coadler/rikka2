@@ -9,6 +9,11 @@ import (
 	"go.coder.com/slog"
 )
 
+type Command interface {
+	Register(func(event string, inputs ...interface{}))
+	Help() []CommandHelp
+}
+
 type Args []string
 
 func (a *Args) Pop() string {

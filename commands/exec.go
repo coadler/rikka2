@@ -21,7 +21,22 @@ type execCmd struct {
 }
 
 func (c *execCmd) Register(fn func(event string, inputs ...interface{})) {
-	fn("MESSAGE_CREATE", middlewares.OwnerOnly, c.handle)
+	fn("MESSAGE_CREATE", middlewares.BotOwnerOnly, c.handle)
+}
+
+func (c *execCmd) Help() []rikka.CommandHelp {
+	return []rikka.CommandHelp{
+		{
+			Name:        "exec",
+			Aliases:     nil,
+			Section:     rikka.HelpSectionOwner,
+			Description: "Execute shell commands",
+			Usage:       "<command>",
+			Examples: []string{
+				"`%sexec lscpu` - List CPU information.",
+			},
+		},
+	}
 }
 
 func (c *execCmd) handle(s disgord.Session, mc *disgord.MessageCreate) {

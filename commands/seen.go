@@ -39,6 +39,23 @@ func (c *seenCmd) Register(fn func(event string, inputs ...interface{})) {
 	fn("MESSAGE_CREATE", c.handleSeen, c.handleCommand)
 }
 
+func (c *seenCmd) Help() []rikka.CommandHelp {
+	return []rikka.CommandHelp{
+		{
+			Name:        "seen",
+			Aliases:     []string{"lastseen", "lastactive"},
+			Section:     rikka.HelpSecionInfo,
+			Description: "See the last time a user typed in the current channel and guild",
+			Usage:       "<mention | user id>",
+			Examples: []string{
+				"`%sseen @Kitty#0001`           - Use a mention to see seen stats.",
+				"`%sseen @Kitty#0001 @thy#0001` - Query multiple users at a time.",
+				"`%sseen 105484726235607040`    - Use an id to see seen stats.",
+			},
+		},
+	}
+}
+
 func (c *seenCmd) handleCommand(s disgord.Session, mc *disgord.MessageCreate) {
 	if !rikka.MatchesCommand(c.Rikka, "seen", mc.Message) {
 		return

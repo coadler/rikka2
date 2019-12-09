@@ -3,7 +3,7 @@ module github.com/coadler/rikka2
 go 1.13
 
 require (
-	github.com/andersfylling/disgord v0.15.2-0.20191113132106-33a0705322f5
+	github.com/andersfylling/disgord v0.16.0
 	github.com/apple/foundationdb/bindings/go v0.0.0-20191113212801-f2017434fde5
 	github.com/bwmarrin/discordgo v0.20.1
 	github.com/davecgh/go-spew v1.1.1

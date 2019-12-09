@@ -25,6 +25,21 @@ func (c *statsCmd) Register(fn func(event string, inputs ...interface{})) {
 	fn("MESSAGE_CREATE", c.handle)
 }
 
+func (c *statsCmd) Help() []rikka.CommandHelp {
+	return []rikka.CommandHelp{
+		{
+			Name:        "stats",
+			Aliases:     nil,
+			Section:     rikka.HelpSecionInfo,
+			Description: "See bot stats",
+			Usage:       "",
+			Examples: []string{
+				"`%sstats` - See bot stats",
+			},
+		},
+	}
+}
+
 func (c *statsCmd) handle(s disgord.Session, mc *disgord.MessageCreate) {
 	if !rikka.MatchesCommand(c.Rikka, "stats", mc.Message) {
 		return
@@ -115,4 +130,5 @@ func (c *statsCmd) handle(s disgord.Session, mc *disgord.MessageCreate) {
 			},
 		},
 	}})
+
 }

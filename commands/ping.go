@@ -20,6 +20,21 @@ func (c *pingCmd) Register(fn func(event string, inputs ...interface{})) {
 	fn("MESSAGE_CREATE", c.handle)
 }
 
+func (c *pingCmd) Help() []rikka.CommandHelp {
+	return []rikka.CommandHelp{
+		{
+			Name:        "ping",
+			Aliases:     nil,
+			Section:     rikka.HelpSecionGeneral,
+			Description: "View bot latency",
+			Usage:       "",
+			Examples: []string{
+				"`%sping` - View bot latency.",
+			},
+		},
+	}
+}
+
 func (c *pingCmd) handle(s disgord.Session, mc *disgord.MessageCreate) {
 	if !rikka.MatchesCommand(c.bot, "ping", mc.Message) {
 		return
