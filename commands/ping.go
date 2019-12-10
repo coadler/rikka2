@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/andersfylling/disgord"
+
 	rikka "github.com/coadler/rikka2"
 )
 

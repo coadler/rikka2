@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"time"
 
+	"cdr.dev/slog"
 	"github.com/andersfylling/disgord"
 	"github.com/apple/foundationdb/bindings/go/src/fdb"
 	"github.com/apple/foundationdb/bindings/go/src/fdb/directory"
 	"github.com/apple/foundationdb/bindings/go/src/fdb/tuple"
 	"github.com/dustin/go-humanize"
-	"go.coder.com/slog"
 	"golang.org/x/xerrors"
 
 	rikka "github.com/coadler/rikka2"

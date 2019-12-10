@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"cdr.dev/slog"
 	"github.com/andersfylling/disgord"
 	"github.com/apple/foundationdb/bindings/go/src/fdb"
 	"github.com/apple/foundationdb/bindings/go/src/fdb/directory"
@@ -15,7 +16,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go"
-	"go.coder.com/slog"
 	"golang.org/x/xerrors"
 
 	rikka "github.com/coadler/rikka2"

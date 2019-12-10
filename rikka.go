@@ -4,10 +4,10 @@ import (
 	"context"
 	"os"
 
+	"cdr.dev/slog"
+	"cdr.dev/slog/sloggers/sloghuman"
 	"github.com/andersfylling/disgord"
 	"github.com/apple/foundationdb/bindings/go/src/fdb"
-	"go.coder.com/slog"
-	"go.coder.com/slog/sloggers/sloghuman"
 )
 
 func New(fdb fdb.Database, token string) *Rikka {

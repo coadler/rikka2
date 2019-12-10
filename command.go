@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"cdr.dev/slog"
 	"github.com/andersfylling/disgord"
-	"go.coder.com/slog"
 )
 
 type Command interface {

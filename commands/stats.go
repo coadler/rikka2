@@ -7,9 +7,10 @@ import (
 
 	"github.com/andersfylling/disgord"
 	"github.com/bwmarrin/discordgo"
-	rikka "github.com/coadler/rikka2"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/dustin/go-humanize"
+
+	rikka "github.com/coadler/rikka2"
 )
 
 func NewStatsCmd(r *rikka.Rikka) rikka.Command {

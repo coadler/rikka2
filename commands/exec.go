@@ -5,8 +5,8 @@ import (
 	"os/exec"
 	"strings"
 
+	"cdr.dev/slog"
 	"github.com/andersfylling/disgord"
-	"go.coder.com/slog"
 
 	rikka "github.com/coadler/rikka2"
 	"github.com/coadler/rikka2/middlewares"
